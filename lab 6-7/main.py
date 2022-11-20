@@ -1,57 +1,85 @@
-
 import numpy as np
+from math import pi
+from numpy import dot
 
 
-def cross_entropy(x):
-    x1 = np.array(x, dtype=float)
-    ce = -np.sum(x1 * np.log2(x1))
-    return ce
+# add two vectors
+def add(A, B):
+    result = []
+    if len(A) == len(B):
+        for i in range(len(A)):
+            result.append(A[i] + B[i])
+    return result
 
 
-def cross_entropyx_y(x, y):
-    x2 = np.array(x, dtype=float)
-    y2 = np.array(y, dtype=float)
-    ce = -np.sum(x2 * np.log2(y2 / x2))
-    return ce
+# subtract two vectors
+def subtr(A, B):
+    result = []
+    if len(A) == len(B):
+        for i in range(len(A)):
+            temp=A[i] - B[i]
+            result.append(temp)
+    return result
 
 
-def Res(x, y):
-    result = cross_entropy(x) + cross_entropyx_y(x, y)
-    return np.round(np.sum(result), 2)
+def multi(A, B):
+    result = []
+    for i in range(len(A)):
+        total = 0
+        for j in range(len(B)):
+            total += A[i, j] * B[j]
+        result.append(total)
+    return result
 
 
-x = [float(x) for x in input().split(" ")]
-y = [float(x) for x in input().split(" ")]
+def gaussElimin(A, B, N, X):
+    # Elimination Phase
+    for k in range(0, N - 1):
+        for i in range(k + 1, N):
+            if A[i, k] == 0:
+                continue
+            var = A[k, k] / A[i, k]
+            for j in range(k,N):
+                A[i,j]=A[k,j]-A[i,j]*var
+            B[i] = B[k] - B[i]*var
+    print("\nUpper triangle A and vector b")
+    for i in range(my_A_rows):
+        print(np.round(A[i],2), np.round(B[i],2))
 
-print(Res(x, y))
+    # Back substitution
+    X[N-1]=B[N-1]/A[N-1,N-1]
+    for i in range(N - 1, -1, -1):
+        sum_ax=0
+        for j in range(i+1, N):
+            sum_ax+=A[i,j]*X[j]
+        X[i]=(B[i]-sum_ax)/A[i,i]
+    print("\nSolution vector")
+    for i in range (my_A_rows):
+        print(f"x{[i]} = {np.round(X[i],2)}")
+    return X
 
-"""
-import numpy as np
+print("--------------")
+print('For now, please convert pi before input')
+print("---------------")
+my_A_rows = int(input("введите число строк матрицы коэфициентов: "))
 
-
-def cross_entropy(x, y):
-    x1 = np.array(x, dtype=float)
-    y1 = np.array(y, dtype=float)
-    ce = -np.sum(y1 * np.log2(x1))
-    return ce
-
-
-def cross_entropyx_y(x, y):
-    x2 = np.array(x, dtype=float)
-    y2 = np.array(y, dtype=float)
-    ce = 1 - np.sum(y2) * np.log(1 - np.log2(x2))
-    # ce = np.sum(x2 * np.log(x2 / y2))
-    return ce
-
-
-def Res(x, y,n):
-    result = -1/n*(cross_entropy(x, y) + cross_entropyx_y(x, y))
-    return np.round(np.sum(result), 2)
+print("введите матрицу коэфициентов (по строках, пробелы между коэффициентами")
+myA = [list(map(float, (input(f"строка {i + 1}: ").split())))
+       for i in range(my_A_rows)]
 
 
-x = [float(x) for x in input().split(" ")]
-y = [float(x) for x in input().split(" ")]
-n=len(x)
+myB = map(float, input("Введите матрицу правых частей, пробелы между числами: ").split())
+myB = list(myB)
 
-print(Res(x, y,n))
-"""
+x_val= np.zeros(len(myB), float)
+A = np.array(myA)
+B = np.array(myB)
+
+
+print("\nMatrix A and vector b")
+for i in range (my_A_rows):
+    print(A[i], B[i])
+gauss_x = gaussElimin(A, B, my_A_rows, x_val)
+mm = multi(np.array(myA),gauss_x)
+delta = subtr(mm,np.array(myB))
+print(f"\ndelta = {delta}")
